@@ -1,10 +1,10 @@
 <template>
   <div class="com-container">
-      <div class="title">
-          <span>我是标题</span>
-          <span class="iconfont title-icon" @click="showChoice = !showChoice">&#xe6eb;</span>
-          <div class="select-con" v-show="showChoice">
-              <div class="select-item" v-for="item in selectTypes" :key="item.key">
+      <div class="title" :style="comStyle">
+          <span>{{'▎'+ showTitle }}</span>
+          <span class="iconfont title-icon" @click="showChoice = !showChoice" :style="comStyle">&#xe6eb;</span>
+          <div class="select-con" v-show="showChoice" :style="marginStyle">
+              <div class="select-item" v-for="item in selectTypes" :key="item.key" @click="handleSelect(item.key)">
                   {{item.text}}
               </div>
           </div>
@@ -19,7 +19,9 @@ export default {
     return {
       chartInstance: null,
       allData: null, //服务器返回的数据
-      showChoice:false  //是否显示切换项
+      showChoice:false,  //是否显示切换项
+      choiceType: 'map', //显示的数据类型
+      titleFontSize: 0,  //标题大小
     }
   },
   
@@ -40,9 +42,29 @@ export default {
           if (!this.allData) {
               return []
           }else {
-              return this.allData.type
+              return this.allData.type.filter(item => {
+                  return item.key != this.choiceType
+              })
           }
-      }
+      },
+      showTitle () {
+        if (!this.allData) {
+            return []
+        }else {
+            return this.allData[this.choiceType].title
+        }
+      },
+      comStyle () {
+        return {
+            fontSize: this.titleFontSize + 'px'
+        }  
+      },
+      marginStyle () {
+        return {
+            marginLeft: this.titleFontSize/1.5 + 'px'
+        }
+      },
+
   },
 
   methods: {
@@ -51,11 +73,6 @@ export default {
       this.chartInstance = this.$echarts.init(this.$refs.trend_ref,'chalk')
       // 对图表初始化配置的控制
       const initOption = {
-        // title: {
-        //   text: '▎商品销售统计', 
-        //   left:80,
-        //   top:40,
-        // },
         grid: {
           top:'20%',
           left:'3%',
@@ -95,7 +112,7 @@ export default {
       const { data: ret } = await this.$http.get('trend')
       this.allData = ret
       this.updataChart()
-      
+    //   console.log(this.allData)
     },
 
     // 更新图表
@@ -117,13 +134,13 @@ export default {
           'rgba(250, 105, 0, 0)' 
       ]
       const timeArr = this.allData.common.month
-      const valueArr = this.allData.map.data
+      const valueArr = this.allData[this.choiceType].data
       const seriesArr = valueArr.map((item,index) => {
           return {
               type: 'line',
               name: item.name,
               data: item.data,
-              stack: 'map',
+              stack: this.choiceType,
               areaStyle: {
                   color: new this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [
                     // 0%状态下的颜色
@@ -157,30 +174,27 @@ export default {
       this.chartInstance.setOption(dataOption)
     },
 
+    // 切换标题
+    handleSelect (currentType) {
+        // console.log(currentType)
+        this.choiceType = currentType
+        this.updataChart()
+        this.showChoice = false
+    },
+
         // 当浏览器大小变化时调用
     screenAdapter() {
-    //   const titleFontSize = this.$refs.trend_ref.offsetWidth / 100 * 3.6
+      this.titleFontSize = this.$refs.trend_ref.offsetWidth / 100 * 3.6
       const adapterOption = {
-        // title: {
-        //   textStyle: {
-        //     fontSize: titleFontSize
-        //   },
-        // },
-        // tooltip: {
-        //   axisPointer: {
-        //     lineStyle: {
-        //       width: titleFontSize, 
-        //     }
-        //   }
-        // },
-        // series: [
-        //   {           
-        //     barWidth: titleFontSize,
-        //     itemStyle: {
-        //       barBorderRadius: [0,titleFontSize / 2,titleFontSize / 2,0],
-        //     },
-        //   }
-        // ]
+          legend: {
+              right: '5%' ,
+              itemWidth: this.titleFontSize /2,
+              itemHeight: this.titleFontSize /2,
+              itemGap: this.titleFontSize,
+              textStyle: {
+                  fontSize: this.titleFontSize / 4
+              }
+          }
       }
       this.chartInstance.setOption(adapterOption)
       this.chartInstance.resize()
@@ -203,8 +217,11 @@ export default {
         margin-left: 10px;
         cursor: pointer;
     }
-    .select-item{
-        cursor: pointer;
+    .select-con{
+        background-color: #222733;
+        .select-item{
+            cursor: pointer;
+        }
     }
 }
 </style>

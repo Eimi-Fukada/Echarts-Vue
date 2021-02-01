@@ -1,14 +1,14 @@
 <template>
   <div class="com-page">
-      <trend></trend>
+      <single-map></single-map>
   </div>
 </template>
 
 <script>
-import Trend from '@/components/Trend'
+import Map from '@/components/Map'
 export default {
   components: {
-    trend: Trend
+    'single-map': Map
   }
 }
 </script>
