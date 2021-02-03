@@ -140,21 +140,21 @@ export default {
         },
 
         screenAdapter() {
-            // const titleFontSize = this.$refs.rank_ref.offsetWidth / 100 * 3.6
+            const titleFontSize = this.$refs.rank_ref.offsetWidth / 100 * 3.6
             const adapterOption = {
-                // title: {
-                //     textStyle: {
-                //         fontSize: titleFontSize
-                //     }
-                // },
-                // legend: {
-                //     itemWidth: titleFontSize / 2, 
-                //     itemHeight: titleFontSize / 2, 
-                //     itemGap: titleFontSize / 2,
-                //     textStyle: {
-                //         fontSize: titleFontSize / 2
-                //     }
-                // }
+                title: {
+                    textStyle: {
+                        fontSize: titleFontSize
+                    }
+                },
+                 series: [
+                    {           
+                        barWidth: titleFontSize,
+                        itemStyle: {
+                        barBorderRadius: [titleFontSize / 2,titleFontSize / 2,0,0],
+                        },
+                    }
+                ]
             }
             this.chartInstance.setOption(adapterOption)
             this.chartInstance.resize()
