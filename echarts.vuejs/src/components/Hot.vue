@@ -1,6 +1,8 @@
 <template>
   <div class="com-container" >
       <div class="com-chart" ref="hot_ref"></div>
+      <span class=""></span>
+      <span class=""></span>
   </div>
 </template>
 
@@ -10,6 +12,7 @@ export default {
         return {
             chartInstance: null,
             allData: null, //服务器返回的数据
+            currentIndex:0,
         }
     },
 
@@ -30,39 +33,11 @@ export default {
         initChart () {
             this.chartInstance = this.$echarts.init(this.$refs.hot_ref,'chalk')
             const initOption = {
-                // title: {
-                //     text: '▎地区销售排行', 
-                //     left:20,
-                //     top:20,
-                // },
-                // grid: {
-                //     top:'40%',
-                //     left:'5%',
-                //     right:'5%',
-                //     bottom:'5%',
-                //     containLabel:true,
-                // },
-                // tooltip: {
-                //     trigger: 'axis',
-                //     axisPointer: {
-                //         type: 'line',
-                //         z:0,
-                //         lineStyle: {
-                //         color: '#2D3443'
-                //         }
-                //     }
-                // },
-                // xAxis: {
-                //     type: 'category'
-                // },
-                // yAxis: {
-                //     type: 'value'
-                // },
-                // series: [
-                //     {
-                //         type:'bar'
-                //     }
-                // ]
+                series:[
+                    {
+                        type:'pie',
+                    }
+                ]
             }
             this.chartInstance.setOption(initOption)
         },
@@ -75,9 +50,24 @@ export default {
         }, 
 
         updataChart () {
-        
+            const legendData = this.allData[this.currentIndex].children.map(item => {
+                return item.name
+            })
+            const seriesData = this.allData[this.currentIndex].children.map(item => {
+                return {
+                    name:item.name,
+                    value:item.value
+                }
+            })
             const dataOption = {
-               
+                legend:{
+                    data:legendData
+                },
+                series:[
+                    {
+                        data:seriesData
+                    }
+                ]
             }
             this.chartInstance.setOption(dataOption)
         },
